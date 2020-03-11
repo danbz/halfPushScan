@@ -17,12 +17,13 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    int numScreens = 4;
 //        camWidth =  640;  // try to grab at this size from the camera. for Raspberry Pi
 //        camHeight = 480;
     camWidth =  1280;  // try to grab at this size from an apple HDwebcam camera.
     camHeight = 720;
-    //    camWidth =  1280;  // try to grab at this size from a standard external 4x3 webcam camera.
-    //    camHeight = 1024;
+//        camWidth =  1280;  // try to grab at this size from a standard external 4x3 webcam camera.
+//        camHeight = 1024;
     //    camWidth= 1334; // stereo labs zed camera
     //   // camWidth= 1280; // stereo labs zed camera
     //    camHeight=376;
@@ -51,12 +52,14 @@ void ofApp::setup(){
     vidGrabber.setDeviceID(0); // set the ID of the camera we will use
     vidGrabber.setDesiredFrameRate(30); // set how fast we will grab frames from the camera
     vidGrabber.initGrabber(camWidth, camHeight); // set the width and height of the camera
-    videoPixels.allocate(camWidth*2,camHeight, OF_PIXELS_RGB); // set up our pixel object to be the same size as our camera object
+    videoPixels.allocate(camWidth*numScreens,camHeight, OF_PIXELS_RGB); // set up our pixel object to be the same size as our camera object
     videoTexture.allocate(videoPixels);
-    // ofSetVerticalSync(true);
+     ofSetVerticalSync(true);
     
     ofSetBackgroundColor(0, 0, 0); // set the background colour to dark black
+    ofSetFrameRate(30);
     ofDisableSmoothing();
+   // ofEnableSmoothing();
     vidGrabber.update();
     
 }
@@ -64,43 +67,43 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
     vidGrabber.update();
-   // if (vidGrabber.isFrameNew()){
-        pixels = vidGrabber.getPixels();
-   // }
+   // pixels = vidGrabber.getPixels();
     
     
-    if (xSteps < videoPixels.getWidth()){
-        for (int y=0; y<camHeight; y++ ) { // loop through all the pixels on a line to draw new line at 0 in target image
-            color = pixels.getColor( camWidth/2, y); // get the pixels on line ySteps
-            videoPixels.setColor(0, y, color);
-        }
-        for (int x = videoPixels.getWidth(); x>0; x-= 1){
-            for (int y=0; y<camHeight; y++ ) { // loop through all the pixels on a line
-                videoPixels.setColor(x+1, y, videoPixels.getColor( x, y )); // copy each pixel in the target to 1 pixel the right
-            }
-        }
-        for (int y=0; y<camHeight; y++ ) { // loop through all the pixels on a line to draw new line at 0 in target image
-            color = pixels.getColor( camWidth/2, y); // get the pixels on line ySteps
-            videoPixels.setColor(0, y, color);
-        }
+//    if (xSteps < videoPixels.getWidth()){
+////        for (int y=0; y<camHeight; y++ ) { // loop through all the pixels on a line to draw new line at 0 in target image
+////            color = pixels.getColor( camWidth/2, y); // get the pixels on line ySteps
+////            camStrip.setColor(0, y, color);
+////        }
+////
+////        for (int x = videoPixels.getWidth(); x>0; x-= 1){
+////            for (int y=0; y<camHeight; y++ ) { // loop through all the pixels on a line
+////                videoPixels.setColor(x+1, y, videoPixels.getColor( x, y )); // copy each pixel in the target to 1 pixel the right
+////            }
+////        }
+////
+////        for (int y=0; y<camHeight; y++ ) { // loop through all the pixels on a line to draw new line at 0 in target image
+////            color = pixels.getColor( camWidth/2, y); // get the pixels on line ySteps
+////            videoPixels.setColor(0, y, color);
+////        }
+//    }
+    if (vidGrabber.isFrameNew()){
+    videoTexture.loadScreenData(camWidth/2, 0, videoPixels.getWidth(), videoPixels.getHeight());
     }
-    
-    videoTexture.loadData(videoPixels);
-    
-    if ( xSteps >= camWidth ) {
-        xSteps = 0; // if we are on the end of screen of the image then start at the top again
-    } else {
-        xSteps += speed; // step on to the next line. increase this number to make things faster
-    }
+//    // videoTexture.loadData(videoPixels);
+//
+//    if ( xSteps >= camWidth ) {
+//        xSteps = 0; // if we are on the end of screen of the image then start at the top again
+//    } else {
+//        xSteps += speed; // step on to the next line. increase this number to make things faster
+//    }
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-    
-     vidGrabber.draw(0,0);
-    videoTexture.draw(camWidth/2, 0); // draw the seconds slitscan video texture we have constructed
-    
+    vidGrabber.draw(0,0);
+    videoTexture.draw(camWidth/2+1, 0); // draw the seconds slitscan video texture we have constructed
     
     if (b_drawCam){ // draw camera debug to screen
         vidGrabber.draw(sWidth-camWidth/4 -10, sHeight-camHeight/4 -10, camWidth/4, camHeight/4); // draw our plain image
